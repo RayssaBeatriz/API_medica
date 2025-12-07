@@ -130,4 +130,27 @@ public class Controlador {
         return consultas;
     }
 
+    @DeleteMapping("/consultas")
+    public Object cancelarConsulta(@RequestParam Long id) {
+        Consulta consulta = consultas.stream()
+                .filter(c -> c.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        if (consulta == null) return "Consulta não encontrada.";
+
+        // liberar o horário correspondente (se existir)
+        Horario horario = horarios.stream()
+                .filter(h -> h.getIdDoutor().equals(consulta.getIdDoutor())
+                        && h.getDataHora().equals(consulta.getDataHora()))
+                .findFirst()
+                .orElse(null);
+
+        if (horario != null) {
+            horario.setReservado(false);
+        }
+
+        consultas.remove(consulta);
+        return consulta;
+    }
 }
